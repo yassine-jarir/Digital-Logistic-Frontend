@@ -1,0 +1,99 @@
+<div class="create-container">
+  <div class="create-header">
+    <h1>Add New Product</h1>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="product-form">
+    <div class="form-group">
+      <label for="sku">SKU <span class="required">
+        *
+
+      </span></label>
+      <input
+        type="text"
+        id="sku"
+        name="sku"
+        [(ngModel)]="product.sku"
+        placeholder="Enter product SKU"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="name">Product Name <span class="required">*</span></label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        [(ngModel)]="product.name"
+        placeholder="Enter product name"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        [(ngModel)]="product.description"
+        placeholder="Enter product description"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category">Category</label>
+        <input
+          type="text"
+          id="category"
+          name="category"
+          [(ngModel)]="product.category"
+          placeholder="Enter category"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="costPrice">Cost Price ($)</label>
+        <input
+          type="number"
+          id="costPrice"
+          name="costPrice"
+          [(ngModel)]="product.costPrice"
+          placeholder="0.00"
+          step="0.01"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sellingPrice">Selling Price ($)</label>
+        <input
+          type="number"
+          id="sellingPrice"
+          name="sellingPrice"
+          [(ngModel)]="product.sellingPrice"
+          placeholder="0.00"
+          step="0.01"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="loading">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        {{ loading ? 'Creating...' : 'Create Product' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,43 @@
+<div class="warehouses-container">
+  <div class="page-header">
+    <h1>🏢 Warehouses Management</h1>
+    <button class="btn btn-primary" routerLink="/admin/warehouses/create">
+      ➕ Add New Warehouse
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading warehouses...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadWarehouses()">Retry</button>
+  </div>
+
+  <div class="warehouses-grid" *ngIf="!loading && !error">
+    <div class="warehouse-card" *ngFor="let warehouse of warehouses">
+      <div class="card-header">
+        <h3>{{ warehouse.name }}</h3>
+        <span class="badge" [class.badge-success]="warehouse.active" [class.badge-danger]="!warehouse.active">
+          {{ warehouse.active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+      <div class="card-body">
+        <p><strong>📍 Location:</strong> {{ warehouse.location }}</p>
+        <p *ngIf="warehouse.managerId"><strong>👤 Manager ID:</strong> {{ warehouse.managerId }}</p>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-warning" [routerLink]="['/admin/warehouses', warehouse.id, 'edit']">
+          Edit
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="deleteWarehouse(warehouse)">
+          Delete
+        </button>
+      </div>
+    </div>
+    <div *ngIf="warehouses.length === 0" class="no-data">
+      No warehouses found.
+    </div>
+  </div>
+</div>

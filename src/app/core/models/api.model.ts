@@ -1,0 +1,22 @@
+export interface ApiError {
+  timestamp?: string;
+  status: number;
+  message: string;
+  path?: string;
+  detail?: string;
+  error?: string;
+}
+
+export interface PageRequest {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}

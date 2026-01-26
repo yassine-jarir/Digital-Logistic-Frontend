@@ -1,0 +1,60 @@
+<div class="purchase-orders-container">
+  <div class="page-header">
+    <h1>📋 Purchase Orders Management</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading purchase orders...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadPurchaseOrders()">Retry</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && !error">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Supplier</th>
+          <th>Warehouse</th>
+          <th>Total Amount</th>
+          <th>Order Date</th>
+          <th>Expected Delivery</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of purchaseOrders">
+          <td><strong>{{ order.orderNumber }}</strong></td>
+          <td>{{ order.supplierName || 'Supplier #' + order.supplierId }}</td>
+          <td>{{ order.warehouseName || 'Warehouse #' + order.warehouseId }}</td>
+          <td>${{ order.totalAmount?.toFixed(2) || '0.00' }}</td>
+          <td>{{ order.orderDate | date:'short' }}</td>
+          <td>{{ order.expectedDeliveryDate | date:'short' }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ order.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button 
+              class="btn btn-sm btn-success" 
+              (click)="approvePurchaseOrder(order)"
+              *ngIf="order.status === 'DRAFT'">
+              ✓ Approve
+            </button>
+            <button class="btn btn-sm btn-info" [routerLink]="['/admin/purchase-orders', order.id]">
+              View
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="purchaseOrders.length === 0" class="no-data">
+      No purchase orders found.
+    </div>
+  </div>
+</div>

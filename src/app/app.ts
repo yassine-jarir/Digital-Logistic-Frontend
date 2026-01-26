@@ -1,12 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NotificationToastComponent } from './shared/components/notification-toast/notification-toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  standalone: true,
+  imports: [RouterOutlet, NotificationToastComponent],
+  template: `
+    <app-notification-toast></app-notification-toast>
+    <router-outlet />
+  `,
+  styles: [`
+    :host {
+      display: block;
+      height: 100%;
+    }
+  `],
 })
-export class App {
-  protected readonly title = signal('logistics-frontend');
-}
+export class App {}

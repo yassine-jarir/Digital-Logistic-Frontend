@@ -1,0 +1,54 @@
+<div class="shipments-container">
+  <div class="page-header">
+    <h1>📦 My Shipments</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading shipments...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadShipments()">Retry</button>
+  </div>
+
+  <div class="shipments-grid" *ngIf="!loading && !error">
+    <table *ngIf="shipments.length > 0; else noShipments">
+      <thead>
+        <tr>
+          <th>Shipment ID</th>
+          <th>Order #</th>
+          <th>Status</th>
+          <th>Carrier</th>
+          <th>Tracking #</th>
+          <th>Shipped Date</th>
+          <th>Delivery Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let shipment of shipments">
+          <td>{{ shipment.id }}</td>
+          <td>{{ shipment.salesOrderId }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(shipment.status)">
+              {{ shipment.status }}
+            </span>
+          </td>
+          <td>{{ shipment.carrier || 'N/A' }}</td>
+          <td>{{ shipment.trackingNumber || 'N/A' }}</td>
+          <td>{{ shipment.shippedDate ? (shipment.shippedDate | date: 'short') : 'N/A' }}</td>
+          <td>{{ shipment.deliveredDate ? (shipment.deliveredDate | date: 'short') : 'N/A' }}</td>
+          <td>
+            <button class="btn btn-sm btn-info" [routerLink]="['/client/shipments', shipment.id]">
+              Track
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noShipments>
+      <p class="no-data">No shipments found.</p>
+    </ng-template>
+  </div>
+</div>

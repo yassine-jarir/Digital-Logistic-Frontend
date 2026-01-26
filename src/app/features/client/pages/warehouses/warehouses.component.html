@@ -1,0 +1,54 @@
+<div class="warehouses-container">
+  <div class="page-header">
+    <h1>🏭 Available Warehouses</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading warehouses...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadWarehouses()">Retry</button>
+  </div>
+
+  <div class="warehouses-grid" *ngIf="!loading && !error">
+    <div class="warehouse-card" *ngFor="let warehouse of warehouses">
+      <div class="card-header">
+        <h3>{{ warehouse.name }}</h3>
+        <span class="badge" [class.badge-success]="warehouse.active" [class.badge-danger]="!warehouse.active">
+          {{ warehouse.active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+      <div class="card-body">
+        <p><strong>📍 Location:</strong> {{ warehouse.location }}</p>
+        <p><strong>🏢 Code:</strong> {{ warehouse.code }}</p>
+        
+        <div *ngIf="warehouse.products && warehouse.products.length > 0" class="products-section">
+          <h4>Available Products</h4>
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>On Hand</th>
+                <th>Reserved</th>
+                <th>Available</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of warehouse.products">
+                <td>{{ product.productName }}</td>
+                <td>{{ product.qtyOnHand }}</td>
+                <td>{{ product.qtyReserved }}</td>
+                <td><strong>{{ product.qtyAvailable }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="warehouses.length === 0" class="no-data">
+      No warehouses available.
+    </div>
+  </div>
+</div>

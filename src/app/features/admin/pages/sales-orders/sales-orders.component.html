@@ -1,0 +1,52 @@
+<div class="sales-orders-container">
+  <div class="page-header">
+    <h1>🛒 Sales Orders Management (All Clients)</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading sales orders...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadSalesOrders()">Retry</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && !error">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Client</th>
+          <th>Warehouse</th>
+          <th>Total Amount</th>
+          <th>Order Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of salesOrders">
+          <td><strong>{{ order.orderNumber }}</strong></td>
+          <td>{{ order.customerName || (order.clientId ? 'Client #' + order.clientId : 'N/A') }}</td>
+          <td>{{ order.warehouseName || 'Warehouse #' + order.warehouseId }}</td>
+          <td>${{ order.totalAmount?.toFixed(2) || '0.00' }}</td>
+          <td>{{ order.orderDate | date:'short' }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ order.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-sm btn-info" [routerLink]="['/admin/sales-orders', order.id]">
+              View Details
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="salesOrders.length === 0" class="no-data">
+      No sales orders found.
+    </div>
+  </div>
+</div>

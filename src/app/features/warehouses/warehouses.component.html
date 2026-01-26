@@ -1,0 +1,8 @@
+<div *ngIf="loading">Loading warehouses...</div>
+<div *ngIf="error">{{ error }}</div>
+<div *ngIf="!loading && !error">
+  <!-- Your warehouse list content here -->
+  <div *ngFor="let warehouse of warehouses">
+    {{ warehouse.name }}
+  </div>
+</div>

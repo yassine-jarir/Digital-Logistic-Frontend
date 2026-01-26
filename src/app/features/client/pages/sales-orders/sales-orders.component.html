@@ -1,0 +1,55 @@
+<div class="sales-orders-container">
+  <div class="page-header">
+    <h1>📦 My Sales Orders</h1>
+    <button class="btn btn-primary" routerLink="/client/orders/create">
+      ➕ Create New Order
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading sales orders...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadSalesOrders()">Retry</button>
+  </div>
+
+  <div class="orders-grid" *ngIf="!loading && !error">
+    <table *ngIf="salesOrders.length > 0; else noOrders">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of salesOrders">
+          <td>{{ order.orderNumber }}</td>
+          <td>{{ order.customerName }}</td>
+          <td>{{ order.orderDate | date: 'short' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+              {{ order.status }}
+            </span>
+          </td>
+          <td>{{ order.lines.length }} items</td>
+          <td>{{ order.totalAmount | currency }}</td>
+          <td>
+            <button class="btn btn-sm btn-info" [routerLink]="['/client/orders', order.id]">
+              View
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noOrders>
+      <p class="no-data">No sales orders found. Create your first order!</p>
+    </ng-template>
+  </div>
+</div>

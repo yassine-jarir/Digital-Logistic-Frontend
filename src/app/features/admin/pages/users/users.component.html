@@ -1,0 +1,56 @@
+<div class="users-container">
+  <div class="page-header">
+    <h1>👥 Users Management</h1>
+    <button class="btn btn-primary" routerLink="/admin/users/create">
+      ➕ Add New User
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading users...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadUsers()">Retry</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && !error">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge badge-info">{{ user.role }}</span></td>
+          <td>
+            <span class="badge" [class.badge-success]="user.active" [class.badge-danger]="!user.active">
+              {{ user.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-sm btn-warning" [routerLink]="['/admin/users', user.id, 'edit']">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteUser(user)">
+              Deactivate
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="users.length === 0" class="no-data">
+      No users found.
+    </div>
+  </div>
+</div>

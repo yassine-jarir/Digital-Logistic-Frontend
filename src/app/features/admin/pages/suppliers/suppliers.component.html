@@ -1,0 +1,61 @@
+<div class="suppliers-container">
+  <div class="page-header">
+    <h1>🚚 Suppliers Management</h1>
+    <button class="btn btn-primary" routerLink="/admin/suppliers/create">
+      ➕ Add New Supplier
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading suppliers...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadSuppliers()">Retry</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && !error">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let supplier of suppliers">
+          <td>{{ supplier.id }}</td>
+          <td>{{ supplier.name }}</td>
+          <td>{{ supplier.contactEmail }}</td>
+          <td>{{ supplier.contactPhone }}</td>
+          <td>{{ supplier.address }}</td>
+          <td>
+            <span class="badge" [class.badge-success]="supplier.active" [class.badge-danger]="!supplier.active">
+              {{ supplier.active ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-sm btn-warning" [routerLink]="['/admin/suppliers', supplier.id, 'edit']">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-secondary" (click)="deactivateSupplier(supplier)" *ngIf="supplier.active">
+              Deactivate
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteSupplier(supplier)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="suppliers.length === 0" class="no-data">
+      No suppliers found.
+    </div>
+  </div>
+</div>

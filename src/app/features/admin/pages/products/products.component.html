@@ -1,0 +1,61 @@
+<div class="products-container">
+  <div class="products-header">
+    <h1>Products Management</h1>
+    <button class="btn btn-primary" routerLink="/admin/products/create">
+      ➕ Add New Product
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading products...
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadProducts()">Retry</button>
+  </div>
+
+  <div class="products-grid" *ngIf="!loading && !error">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-header">
+        <h3>{{ product.name }}</h3>
+        <span class="product-sku">SKU: {{ product.sku }}</span>
+      </div>
+      <div class="product-details">
+        <p class="product-description">{{ product.description }}</p>
+        <div class="product-meta">
+          <span class="product-price">
+            Cost: ${{ product.costPrice.toFixed(2) }} | 
+            Selling: ${{ product.sellingPrice.toFixed(2) }}
+          </span>
+          <span class="product-category" *ngIf="product.category">
+            {{ product.category }}
+          </span>
+        </div>
+        <div class="product-info">
+          <span class="badge" [class.badge-success]="product.active" [class.badge-danger]="!product.active">
+            {{ product.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+      <div class="product-actions">
+        <button class="btn btn-sm btn-secondary" (click)="viewProduct(product)">
+          View
+        </button>
+        <button class="btn btn-sm btn-warning" (click)="editProduct(product)">
+          Edit
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="deleteProduct(product)">
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="products.length === 0" class="no-products">
+      <p>No products found</p>
+      <button class="btn btn-primary" routerLink="/admin/products/create">
+        Create First Product
+      </button>
+    </div>
+  </div>
+</div>
