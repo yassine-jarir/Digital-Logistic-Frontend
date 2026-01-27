@@ -8,6 +8,29 @@
   </div>
 
   <form (ngSubmit)="onSubmit()" class="order-form">
+    <div class="info-message" *ngIf="warehousesLoading">Loading warehouses...</div>
+    <div class="error-message" *ngIf="warehousesError">{{ warehousesError }}</div>
+
+    <div class="form-group">
+      <label for="warehouse">Warehouse <span class="required">*</span></label>
+      <select id="warehouse" name="warehouse" [(ngModel)]="warehouseId" [disabled]="loading || warehousesLoading" required>
+        <option [ngValue]="null" disabled>Select a warehouse</option>
+        <option *ngFor="let w of warehouses" [ngValue]="w.id">{{ w.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="clientId">Client ID <span class="required">*</span></label>
+      <input
+        type="number"
+        id="clientId"
+        name="clientId"
+        [(ngModel)]="clientId"
+        min="1"
+        required
+      />
+      <small class="hint">Temporary: required by backend. If unknown, ask admin for your numeric client ID.</small>
+    </div>
     <div class="info-message" *ngIf="productsLoading">
       Loading products...
     </div>

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { API_BASE_URL } from '../app.config';
 import { Product } from '../core/models/product.model';
 
@@ -10,9 +11,19 @@ export class ProductService {
   private base = inject(API_BASE_URL);
   private url = `${this.base}/products`;
 
+  private normalizeProductListResponse(response: any): Product[] {
+    if (Array.isArray(response)) return response as Product[];
+    if (Array.isArray(response?.content)) return response.content as Product[];
+    if (Array.isArray(response?.data)) return response.data as Product[];
+    if (response && typeof response === 'object') return [response as Product];
+    return [];
+  }
+
   // ADMIN: Get all products
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.url}/all`);
+    return this.http
+      .get<any>(`${this.url}/all`)
+      .pipe(map((res) => this.normalizeProductListResponse(res)));
   }
 
   // ADMIN: Get product by ID
