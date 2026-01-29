@@ -14,7 +14,7 @@ export class PurchaseOrderService {
     return this.http.get<PurchaseOrder[]>(`${this.base}/warehouse-manager/purchase-orders`);
   }
 
-  getWarehouseOrderDetail(id: string): Observable<PurchaseOrder> {
+  getWarehouseOrderDetail(id: string | number): Observable<PurchaseOrder> {
     return this.http.get<PurchaseOrder>(`${this.base}/warehouse-manager/purchase-orders/${id}`);
   }
 
@@ -22,8 +22,9 @@ export class PurchaseOrderService {
     return this.http.post<PurchaseOrder>(`${this.base}/warehouse-manager/purchase-orders`, body);
   }
 
-  receiveWarehouseOrder(id: string, body: ReceivePurchaseOrderRequest): Observable<PurchaseOrder> {
-    return this.http.post<PurchaseOrder>(`${this.base}/warehouse-manager/purchase-orders/${id}/receive`, body);
+  // Receive entire purchase order - automatically receives all lines with full quantities
+  receiveWarehouseOrder(id: string | number): Observable<PurchaseOrder> {
+    return this.http.post<PurchaseOrder>(`${this.base}/warehouse-manager/purchase-orders/${id}/receive`, {});
   }
 
   // ADMIN endpoints

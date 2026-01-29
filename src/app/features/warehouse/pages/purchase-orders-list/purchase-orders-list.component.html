@@ -1,0 +1,175 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">📋 Purchase Orders</h1>
+      <p class="text-gray-600 mt-1">Manage and track your purchase orders</p>
+    </div>
+    <button (click)="createNewOrder()" 
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-lg hover:shadow-xl transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Create Purchase Order
+    </button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage()" class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+      </svg>
+      <span class="text-green-700 font-medium">{{ successMessage() }}</span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error() && !loading()" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <span class="text-red-700 font-medium">{{ error() }}</span>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="bg-white rounded-lg shadow mb-6 p-4">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="text-sm font-medium text-gray-700">Filter by Status:</span>
+      <div class="flex gap-2 flex-wrap">
+        <button *ngFor="let status of statusFilters"
+                (click)="filterByStatus(status)"
+                [class.active]="selectedStatus() === status"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition">
+          {{ status }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex flex-col items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+    <p class="mt-4 text-gray-600">Loading purchase orders...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+    <div class="flex items-center">
+      <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <p class="text-red-700 font-medium">{{ error() }}</p>
+        <button (click)="loadPurchaseOrders()" class="mt-2 text-sm text-red-600 hover:text-red-800 underline">
+          Try again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase Orders Table -->
+  <div *ngIf="!loading() && !error()" class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-linear-to-r from-blue-600 to-blue-700 text-white">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Order #</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Supplier</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Warehouse</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Order Date</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Expected Delivery</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Total Amount</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let order of filteredOrders()" class="hover:bg-blue-50 transition cursor-pointer" (click)="viewDetails(order.id)">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-bold text-blue-600">{{ order.orderNumber }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ order.supplierName }}</div>
+              <div class="text-xs text-gray-500">ID: {{ order.supplierId }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ order.warehouseName || 'N/A' }}</div>
+              <div class="text-xs text-gray-500">ID: {{ order.warehouseId }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatDate(order.orderDate) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatDate(order.expectedDeliveryDate) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-semibold text-blue-600">{{ formatAmount(order.totalAmount) }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [ngClass]="getStatusClass(order.status)" class="px-3 py-1 text-xs font-semibold rounded-full">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex items-center gap-3">
+                <!-- Receive Button (for APPROVED orders) -->
+                <button *ngIf="order.status === 'APPROVED'" 
+                        (click)="receivePurchaseOrder(order, $event)"
+                        [disabled]="isReceiving(order.id)"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition">
+                  <svg *ngIf="isReceiving(order.id)" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg *ngIf="!isReceiving(order.id)" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {{ isReceiving(order.id) ? 'Receiving...' : 'Receive' }}
+                </button>
+                
+                <!-- View Button -->
+                <button (click)="viewDetails(order.id); $event.stopPropagation()" 
+                        class="text-blue-600 hover:text-blue-900 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  View
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredOrders().length === 0">
+            <td colspan="8" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-gray-500 text-lg font-medium">No purchase orders found</p>
+                <p class="text-gray-400 text-sm mt-1">{{ selectedStatus() !== 'ALL' ? 'Try selecting a different filter' : 'Create your first purchase order to get started' }}</p>
+                <button (click)="createNewOrder()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  Create Purchase Order
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Summary Footer -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200" *ngIf="filteredOrders().length > 0">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gray-600">
+          Showing <strong>{{ filteredOrders().length }}</strong> of <strong>{{ purchaseOrders().length }}</strong> purchase orders
+        </span>
+        <span class="text-gray-600">
+          Total Value: <strong class="text-blue-600">{{ formatAmount(totalValue()) }}</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

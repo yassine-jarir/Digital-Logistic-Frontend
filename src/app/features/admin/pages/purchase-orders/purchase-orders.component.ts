@@ -1,13 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { PurchaseOrderService } from '../../../../api/purchase-order.service';
 import { PurchaseOrder } from '../../../../core/models/purchase-order.model';
 
 @Component({
   selector: 'app-purchase-orders',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './purchase-orders.component.html',
   styleUrls: ['./purchase-orders.component.css']
 })
@@ -15,6 +16,8 @@ export class PurchaseOrdersComponent implements OnInit {
   purchaseOrders: PurchaseOrder[] = [];
   loading = true;
   error: string | null = null;
+  selectedStatus: string = '';
+  statuses = ['DRAFT', 'APPROVED', 'RECEIVED', 'CANCELLED'];
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
@@ -30,7 +33,11 @@ export class PurchaseOrdersComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.purchaseOrderService.getAdminPurchaseOrders().subscribe({
+    const service$ = this.selectedStatus
+      ? this.purchaseOrderService.getAdminPurchaseOrdersByStatus(this.selectedStatus as any)
+      : this.purchaseOrderService.getAdminPurchaseOrders();
+
+    service$.subscribe({
       next: (orders) => {
         console.log('✅ Purchase orders loaded:', orders);
         this.ngZone.run(() => {
@@ -50,7 +57,20 @@ export class PurchaseOrdersComponent implements OnInit {
     });
   }
 
-  approvePurchaseOrder(order: PurchaseOrder): void {
+  filterByStatus(status: string): void {
+    this.selectedStatus = status;
+    this.loadPurchaseOrders();
+  }
+
+  clearFilter(): void {
+    this.selectedStatus = '';
+    this.loadPurchaseOrders();
+  }
+
+  approvePurchaseOrder(order: PurchaseOrder, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     if (confirm(`Approve purchase order #${order.orderNumber}?`)) {
       this.purchaseOrderService.approvePurchaseOrder(order.id!).subscribe({
         next: () => {

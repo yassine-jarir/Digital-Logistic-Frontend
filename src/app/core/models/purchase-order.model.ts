@@ -1,4 +1,4 @@
-export type PurchaseOrderStatus = 'DRAFT' | 'CREATED' | 'APPROVED' | 'RECEIVED' | 'CANCELED';
+export type PurchaseOrderStatus = 'DRAFT' | 'CREATED' | 'APPROVED' | 'RECEIVED' | 'CANCELLED';
 
 export interface PurchaseOrder {
   id?: number;
@@ -27,16 +27,16 @@ export interface PurchaseOrderLine {
 }
 
 export interface CreatePurchaseOrderRequest {
-  supplierName: string;
+  supplierId: number;
   warehouseId: number;
-  expectedDeliveryDate?: string;
+  orderDate: string;
   lines: CreatePurchaseOrderLineRequest[];
 }
 
 export interface CreatePurchaseOrderLineRequest {
-  productSku: string;
-  quantity: number;
-  unitPrice?: number;
+  productId: number;
+  orderedQuantity: number;
+  unitCost: number;
 }
 
 export interface ReceivePurchaseOrderRequest {

@@ -26,6 +26,13 @@ export class ProductService {
       .pipe(map((res) => this.normalizeProductListResponse(res)));
   }
 
+  // WAREHOUSE_MANAGER: Get all products
+  getWarehouseProducts(): Observable<Product[]> {
+    return this.http
+      .get<any>(`${this.base}/warehouse-manager/products`)
+      .pipe(map((res) => this.normalizeProductListResponse(res)));
+  }
+
   // ADMIN: Get product by ID
   getProduct(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.url}/${id}`);

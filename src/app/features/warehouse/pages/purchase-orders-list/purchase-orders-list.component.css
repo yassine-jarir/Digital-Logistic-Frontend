@@ -1,0 +1,74 @@
+.filter-btn {
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #4b5563;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f3f4f6;
+  border-color: #3b82f6;
+}
+
+.filter-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Status badges */
+.status-draft {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-created {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-approved {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-received {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Table enhancements */
+tbody tr {
+  transition: all 0.15s ease;
+}
+
+tbody tr:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .py-4 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}

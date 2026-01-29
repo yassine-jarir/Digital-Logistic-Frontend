@@ -20,6 +20,11 @@ export class SupplierService {
     return this.http.get<Supplier[]>(`${this.url}/active`);
   }
 
+  // WAREHOUSE_MANAGER: Get active suppliers
+  getWarehouseActiveSuppliers(): Observable<Supplier[]> {
+    return this.http.get<Supplier[]>(`${this.base}/warehouse-manager/suppliers/active`);
+  }
+
   // ADMIN: Get supplier by ID
   getSupplier(id: number): Observable<Supplier> {
     return this.http.get<Supplier>(`${this.url}/${id}`);

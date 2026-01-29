@@ -9,6 +9,7 @@ import { WarehouseCreateComponent } from './pages/warehouses/warehouse-create.co
 import { SuppliersComponent } from './pages/suppliers/suppliers.component';
 import { SupplierCreateComponent } from './pages/suppliers/supplier-create.component';
 import { PurchaseOrdersComponent } from './pages/purchase-orders/purchase-orders.component';
+import { PurchaseOrderDetailComponent } from './pages/purchase-orders/purchase-order-detail.component';
 import { SalesOrdersComponent } from './pages/sales-orders/sales-orders.component';
 
 export const ADMIN_ROUTES: Routes = [
@@ -56,6 +57,10 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: 'purchase-orders',
     component: PurchaseOrdersComponent
+  },
+  {
+    path: 'purchase-orders/:id',
+    component: PurchaseOrderDetailComponent
   },
   // Sales Orders
   {

@@ -1,0 +1,144 @@
+<div class="purchase-order-detail-container">
+  <div class="loading" *ngIf="loading">
+    Loading purchase order details...
+  </div>
+
+  <div class="error" *ngIf="error && !loading">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadPurchaseOrder()">Retry</button>
+    <button class="btn btn-secondary" (click)="goBack()">Go Back</button>
+  </div>
+
+  <div *ngIf="purchaseOrder && !loading" class="order-detail-content">
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="header-left">
+        <button class="btn btn-secondary" (click)="goBack()">
+          ← Back to List
+        </button>
+        <h1>Purchase Order #{{ purchaseOrder.orderNumber }}</h1>
+      </div>
+      <div class="header-right">
+        <span class="badge" [ngClass]="getStatusBadgeClass(purchaseOrder.status)">
+          {{ purchaseOrder.status }}
+        </span>
+        <button 
+          *ngIf="canApprove()"
+          class="btn btn-success"
+          (click)="approvePurchaseOrder()">
+          ✓ Approve Order
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Information -->
+    <div class="info-cards">
+      <div class="info-card">
+        <h3>📦 Order Information</h3>
+        <div class="info-row">
+          <span class="label">Order Number:</span>
+          <span class="value"><strong>{{ purchaseOrder.orderNumber }}</strong></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Order Date:</span>
+          <span class="value">{{ purchaseOrder.orderDate | date:'medium' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Expected Delivery:</span>
+          <span class="value">{{ (purchaseOrder.expectedDeliveryDate | date:'medium') || 'Not specified' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Status:</span>
+          <span class="value">
+            <span class="badge" [ngClass]="getStatusBadgeClass(purchaseOrder.status)">
+              {{ purchaseOrder.status }}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>🏢 Supplier Information</h3>
+        <div class="info-row">
+          <span class="label">Supplier Name:</span>
+          <span class="value"><strong>{{ purchaseOrder.supplierName }}</strong></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Supplier ID:</span>
+          <span class="value">#{{ purchaseOrder.supplierId }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>🏭 Warehouse Information</h3>
+        <div class="info-row">
+          <span class="label">Warehouse Name:</span>
+          <span class="value"><strong>{{ purchaseOrder.warehouseName || 'N/A' }}</strong></span>
+        </div>
+        <div class="info-row">
+          <span class="label">Warehouse ID:</span>
+          <span class="value">#{{ purchaseOrder.warehouseId }}</span>
+        </div>
+      </div>
+
+      <div class="info-card highlight">
+        <h3>💰 Financial Summary</h3>
+        <div class="info-row">
+          <span class="label">Total Amount:</span>
+          <span class="value total-amount">${{ purchaseOrder.totalAmount?.toFixed(2) || '0.00' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Lines -->
+    <div class="order-lines-section">
+      <h2>📋 Order Lines</h2>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product SKU</th>
+              <th>Product Name</th>
+              <th>Ordered Qty</th>
+              <th>Received Qty</th>
+              <th>Unit Price</th>
+              <th>Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let line of purchaseOrder.lines">
+              <td><strong>{{ line.productSku }}</strong></td>
+              <td>{{ line.productName || 'N/A' }}</td>
+              <td>{{ line.orderedQuantity }}</td>
+              <td>
+                <span [class.text-success]="line.receivedQuantity > 0">
+                  {{ line.receivedQuantity }}
+                </span>
+              </td>
+              <td>${{ line.unitPrice?.toFixed(2) || '0.00' }}</td>
+              <td><strong>${{ line.totalPrice?.toFixed(2) || '0.00' }}</strong></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="5" class="text-right"><strong>Total:</strong></td>
+              <td><strong>${{ purchaseOrder.totalAmount?.toFixed(2) || '0.00' }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="timestamps" *ngIf="purchaseOrder.createdAt || purchaseOrder.updatedAt">
+      <div class="timestamp-item" *ngIf="purchaseOrder.createdAt">
+        <span class="label">Created:</span>
+        <span class="value">{{ purchaseOrder.createdAt | date:'medium' }}</span>
+      </div>
+      <div class="timestamp-item" *ngIf="purchaseOrder.updatedAt">
+        <span class="label">Last Updated:</span>
+        <span class="value">{{ purchaseOrder.updatedAt | date:'medium' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

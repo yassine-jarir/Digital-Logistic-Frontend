@@ -1,6 +1,14 @@
 <div class="purchase-orders-container">
   <div class="page-header">
     <h1>📋 Purchase Orders Management</h1>
+    <div class="filter-section">
+      <label for="status-filter">Filter by Status:</label>
+      <select id="status-filter" [(ngModel)]="selectedStatus" (change)="filterByStatus(selectedStatus)" class="status-filter">
+        <option value="">All Statuses</option>
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+      <button *ngIf="selectedStatus" class="btn btn-sm" (click)="clearFilter()">Clear Filter</button>
+    </div>
   </div>
 
   <div class="loading" *ngIf="loading">
@@ -42,12 +50,13 @@
           <td class="actions">
             <button 
               class="btn btn-sm btn-success" 
-              (click)="approvePurchaseOrder(order)"
-              *ngIf="order.status === 'DRAFT'">
+              (click)="approvePurchaseOrder(order, $event)"
+              *ngIf="order.status === 'DRAFT'"
+              title="Approve purchase order">
               ✓ Approve
             </button>
-            <button class="btn btn-sm btn-info" [routerLink]="['/admin/purchase-orders', order.id]">
-              View
+            <button class="btn btn-sm btn-info" [routerLink]="[order.id]" title="View details">
+              👁 View
             </button>
           </td>
         </tr>
