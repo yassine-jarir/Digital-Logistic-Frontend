@@ -5,6 +5,7 @@ import { SalesOrdersListComponent } from './pages/sales-orders-list/sales-orders
 import { PurchaseOrderCreateComponent } from './pages/purchase-order-create/purchase-order-create.component';
 import { PurchaseOrderDetailsComponent } from './pages/purchase-order-details/purchase-order-details.component';
 import { PurchaseOrdersListComponent } from './pages/purchase-orders-list/purchase-orders-list.component';
+import { ShipmentsManagementComponent } from './pages/shipments-management/shipments-management.component';
 
 export const WAREHOUSE_ROUTES: Routes = [
   {
@@ -34,6 +35,12 @@ export const WAREHOUSE_ROUTES: Routes = [
   {
     path: 'purchase-orders/:id',
     component: PurchaseOrderDetailsComponent,
+    canActivate: [roleGuard],
+    data: { roles: ['WAREHOUSE_MANAGER', 'ADMIN'] }
+  },
+  {
+    path: 'shipments',
+    component: ShipmentsManagementComponent,
     canActivate: [roleGuard],
     data: { roles: ['WAREHOUSE_MANAGER', 'ADMIN'] }
   }

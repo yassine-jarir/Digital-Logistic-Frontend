@@ -16,32 +16,30 @@
     <table *ngIf="shipments.length > 0; else noShipments">
       <thead>
         <tr>
-          <th>Shipment ID</th>
-          <th>Order #</th>
+          <th>Shipment #</th>
+          <th>Sales Order #</th>
           <th>Status</th>
           <th>Carrier</th>
           <th>Tracking #</th>
-          <th>Shipped Date</th>
-          <th>Delivery Date</th>
+          <th>Planned Ship Date</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let shipment of shipments">
-          <td>{{ shipment.id }}</td>
-          <td>{{ shipment.salesOrderId }}</td>
+          <td>{{ shipment.shipmentNumber }}</td>
+          <td>{{ shipment.salesOrderNumber }}</td>
           <td>
             <span class="status-badge" [ngClass]="getStatusBadgeClass(shipment.status)">
               {{ shipment.status }}
             </span>
           </td>
-          <td>{{ shipment.carrier || 'N/A' }}</td>
-          <td>{{ shipment.trackingNumber || 'N/A' }}</td>
-          <td>{{ shipment.shippedDate ? (shipment.shippedDate | date: 'short') : 'N/A' }}</td>
-          <td>{{ shipment.deliveredDate ? (shipment.deliveredDate | date: 'short') : 'N/A' }}</td>
+          <td>{{ shipment.carrier || '-' }}</td>
+          <td>{{ shipment.trackingNumber || '-' }}</td>
+          <td>{{ shipment.plannedShipDate ? (shipment.plannedShipDate | date: 'mediumDate') : 'N/A' }}</td>
           <td>
             <button class="btn btn-sm btn-info" [routerLink]="['/client/shipments', shipment.id]">
-              Track
+              View Details
             </button>
           </td>
         </tr>

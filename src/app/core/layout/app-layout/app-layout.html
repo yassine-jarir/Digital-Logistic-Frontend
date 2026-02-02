@@ -1,1 +1,57 @@
-<p>app-layout works!</p>
+<div class="app-container">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h3>Digital Logistics</h3>
+    </div>
+
+    <div class="menu-sections">
+      <div *ngFor="let section of menuSections" class="menu-section">
+        <div *ngIf="hasRole(section.roles)">
+          <div class="section-header" (click)="toggleSection(section)">
+            <span class="section-icon">{{section.icon}}</span>
+            <span class="section-title">{{section.title}}</span>
+            <span class="expand-icon" [class.expanded]="section.expanded">
+              {{ section.expanded ? '▼' : '▶' }}
+            </span>
+          </div>
+
+          <!-- Shipments quick filter select -->
+          <div *ngIf="section.title === 'Shipments'" class="section-filter">
+            <label class="filter-label">Status:</label>
+            <select [value]="selectedShipmentStatus" (change)="onShipmentStatusChange($any($event.target).value)">
+              <option value="ALL">All</option>
+              <option value="PENDING">Pending</option>
+              <option value="IN_TRANSIT">In Transit</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="RETURNED">Returned</option>
+            </select>
+          </div>
+          
+          <ul class="section-items" [class.expanded]="section.expanded">
+            <li *ngFor="let item of section.items">
+              <a 
+                [routerLink]="item.route" 
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: item.route === '/client'}"
+                class="menu-item"
+              >
+                <span *ngIf="item.icon" class="item-icon">{{item.icon}}</span>
+                <span class="item-label">{{item.label}}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="onLogout()">
+        🚪 Logout
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

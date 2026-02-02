@@ -33,6 +33,7 @@ export class ClientShipmentsComponent implements OnInit {
     this.shipmentService.getClientShipments().subscribe({
       next: (shipments) => {
         console.log('✅ Client shipments loaded:', shipments);
+        console.log('First shipment plannedShipDate:', shipments[0]?.plannedShipDate);
         this.ngZone.run(() => {
           this.shipments = shipments;
           this.loading = false;

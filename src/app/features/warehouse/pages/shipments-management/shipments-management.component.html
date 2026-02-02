@@ -1,0 +1,253 @@
+<div class="shipments-management-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        Shipment Management
+      </h1>
+      <button class="btn-primary" (click)="openCreateModal()">
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Create Shipment
+      </button>
+      <div class="action-select">
+        <label for="shipment-action">Quick Action:</label>
+        <select id="shipment-action" (change)="onActionSelect($any($event.target).value)">
+          <option value="NONE">-- Select --</option>
+          <option value="CREATE">Create Shipment (for reserved order)</option>
+          <option value="SHIP">Ship Planned Shipments</option>
+          <option value="DELIVER">Deliver Shipped Shipments</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>{{ successMessage() }}</span>
+      <button class="alert-close" (click)="dismissSuccess()">×</button>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span>{{ error() }}</span>
+      <button class="alert-close" (click)="dismissError()">×</button>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label class="filter-label">Filter by Status:</label>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="filterStatus.set($any($event.target).value)">
+        <option value="ALL">All Shipments</option>
+        <option value="PLANNED">Planned</option>
+        <option value="SHIPPED">Shipped</option>
+        <option value="DELIVERED">Delivered</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading shipments...</p>
+    </div>
+  }
+
+  <!-- Shipments Table -->
+  @if (!loading()) {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Shipment #</th>
+            <th>Sales Order #</th>
+            <th>Status</th>
+            <th>Carrier</th>
+            <th>Tracking #</th>
+            <th>Planned Ship Date</th>
+            <th>Shipped Date</th>
+            <th>Delivered Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (getFilteredShipments().length === 0) {
+            <tr>
+              <td colspan="9" class="no-data">
+                <svg class="no-data-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p>No shipments found</p>
+              </td>
+            </tr>
+          }
+          @for (shipment of getFilteredShipments(); track shipment.id) {
+            <tr>
+              <td class="font-medium">{{ shipment.shipmentNumber }}</td>
+              <td>
+                <span class="order-badge">{{ shipment.salesOrderNumber || '#' + shipment.salesOrderId }}</span>
+              </td>
+              <td>
+                <span [class]="'status-badge ' + getStatusBadgeClass(shipment.status)">
+                  {{ shipment.status }}
+                </span>
+              </td>
+              <td>{{ shipment.carrier || '-' }}</td>
+              <td>
+                @if (shipment.trackingNumber) {
+                  <code class="tracking-code">{{ shipment.trackingNumber }}</code>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td class="text-sm">{{ formatDate(shipment.plannedShipDate) }}</td>
+              <td class="text-sm">{{ formatDate(shipment.actualShipDate) }}</td>
+              <td class="text-sm">N/A</td>
+              <td>
+                <div class="action-buttons">
+                  @if (canShip(shipment)) {
+                    <button 
+                      class="btn-action btn-ship" 
+                      (click)="openShipModal(shipment.id!)"
+                      title="Ship Shipment">
+                      <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      Ship
+                    </button>
+                  }
+                  @if (canDeliver(shipment)) {
+                    <button 
+                      class="btn-action btn-deliver" 
+                      (click)="markAsDelivered(shipment.id!)"
+                      [disabled]="delivering() === shipment.id"
+                      title="Mark as Delivered">
+                      <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      @if (delivering() === shipment.id) {
+                        <span>Processing...</span>
+                      } @else {
+                        <span>Deliver</span>
+                      }
+                    </button>
+                  }
+                  @if (shipment.status === 'DELIVERED') {
+                    <span class="completed-badge">✓ Completed</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Create Shipment Modal -->
+  @if (showCreateModal()) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title">Create New Shipment</h2>
+          <button class="modal-close" (click)="closeCreateModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Select Reserved Sales Order</label>
+            <select 
+              class="form-control" 
+              [(ngModel)]="selectedSalesOrderId"
+              (change)="selectedSalesOrderId.set($any($event.target).value ? +$any($event.target).value : null)">
+              <option [value]="null">-- Select Sales Order --</option>
+              @for (order of reservedSalesOrders(); track order.id) {
+                <option [value]="order.id">
+                  {{ order.orderNumber }} - {{ order.customerName || 'Customer #' + order.clientId }} ({{ order.totalAmount | number:'1.2-2' }} USD)
+                </option>
+              }
+            </select>
+            @if (reservedSalesOrders().length === 0) {
+              <p class="form-hint text-warning">No reserved sales orders available. Orders must be reserved before creating shipments.</p>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeCreateModal()">Cancel</button>
+          <button 
+            class="btn-primary" 
+            (click)="createShipment()"
+            [disabled]="creating() || !selectedSalesOrderId()">
+            @if (creating()) {
+              <span>Creating...</span>
+            } @else {
+              <span>Create Shipment</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Ship Shipment Modal -->
+  @if (showShipModal()) {
+    <div class="modal-overlay" (click)="closeShipModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title">Ship Shipment</h2>
+          <button class="modal-close" (click)="closeShipModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Carrier</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="carrier"
+              (ngModelChange)="carrier.set($event)"
+              placeholder="e.g., FedEx, UPS, DHL"
+              required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tracking Number</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="trackingNumber"
+              (ngModelChange)="trackingNumber.set($event)"
+              placeholder="Enter tracking number"
+              required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" (click)="closeShipModal()">Cancel</button>
+          <button 
+            class="btn-primary" 
+            (click)="shipShipment()"
+            [disabled]="shipping() || !trackingNumber() || !carrier()">
+            @if (shipping()) {
+              <span>Shipping...</span>
+            } @else {
+              <span>Mark as Shipped</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

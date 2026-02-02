@@ -239,6 +239,10 @@
   filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.4));
 }
 
+.stat-icon.shipments {
+  filter: drop-shadow(0 4px 8px rgba(168, 85, 247, 0.4));
+}
+
 .stat-info {
   flex: 1;
 }
@@ -269,6 +273,12 @@
   color: #9ca3af;
   margin-top: 0.5rem;
   font-weight: 500;
+}
+
+.shipment-breakdown {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 600;
 }
 
 .stat-card.warehouses {
@@ -396,7 +406,11 @@ table th {
   color: white;
   text-transform: uppercase;
   font-size: 0.8125rem;
-  letter-spacing: 1
+  letter-spacing: 1px;
+}
+
+table {
+  width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -541,6 +555,18 @@ table tbody tr:last-child td {
 
 .action-btn.secondary {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.action-btn.tertiary {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.action-btn.success {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.action-btn.info {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
 /* Status Bad5rem 1rem;
@@ -693,6 +719,13 @@ table tbody tr:last-child td {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  transition: all 0.2s;
+}
+
+.create-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
 
 .no-data-icon {
   font-size: 3rem;

@@ -1,18 +1,27 @@
-export type ShipmentStatus = 'PLANNED' | 'SHIPPED' | 'DELIVERED';
+export type ShipmentStatus = 'PLANNED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+
+export interface ShipmentLine {
+  id: number;
+  productId: number;
+  productName: string;
+  productSku: string;
+  quantity: number;
+  salesOrderLineId: number;
+  quantityShipped: number;
+}
 
 export interface Shipment {
   id?: number;
   shipmentNumber: string;
   salesOrderId: number;
   salesOrderNumber?: string;
-  trackingNumber?: string;
-  carrier?: string;
+  trackingNumber?: string | null;
+  carrier?: string | null;
   status: ShipmentStatus;
-  scheduledDate?: string;
-  shippedDate?: string;
-  deliveredDate?: string;
+  plannedShipDate?: string;
+  actualShipDate?: string | null;
   createdAt?: string;
-  updatedAt?: string;
+  lines?: ShipmentLine[];
 }
 
 export interface CreateShipmentRequest {

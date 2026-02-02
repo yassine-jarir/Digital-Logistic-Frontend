@@ -1,0 +1,126 @@
+<div class="shipment-ship-container">
+  <div class="page-header">
+    <h1>🚀 Ship Shipment</h1>
+    <p>Mark a planned shipment as shipped and provide tracking information</p>
+  </div>
+
+  <div class="back-link">
+    <a routerLink="/client/shipments">← Back to Shipments</a>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="shipForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        ✅ {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-error">
+        ❌ {{ error }}
+      </div>
+
+      <!-- Shipment Selection -->
+      <div class="form-group">
+        <label for="shipmentId">Shipment *</label>
+        <select 
+          id="shipmentId" 
+          formControlName="shipmentId"
+          (change)="onShipmentSelect()"
+          [disabled]="loadingShipments"
+          class="form-control"
+        >
+          <option value="">-- Select a Planned Shipment --</option>
+          <option *ngFor="let shipment of shipments" [value]="shipment.id">
+            {{ getShipmentDisplay(shipment) }}
+          </option>
+        </select>
+        <small class="form-hint">
+          Select a planned shipment to mark as shipped
+        </small>
+        <div *ngIf="shipments.length === 0 && !loadingShipments" class="warning-message">
+          ⚠️ No planned shipments available.
+        </div>
+      </div>
+
+      <!-- Selected Shipment Info -->
+      <div *ngIf="selectedShipment" class="shipment-info">
+        <h3>📦 Shipment Details</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Shipment Number:</strong>
+            <span>{{ selectedShipment.shipmentNumber }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Sales Order:</strong>
+            <span>#{{ selectedShipment.salesOrderNumber || selectedShipment.salesOrderId }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Status:</strong>
+            <span class="badge badge-planned">{{ selectedShipment.status }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedShipment.plannedShipDate">
+            <strong>Planned Ship Date:</strong>
+            <span>{{ selectedShipment.plannedShipDate | date:'short' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Number -->
+      <div class="form-group">
+        <label for="trackingNumber">Tracking Number *</label>
+        <input 
+          type="text" 
+          id="trackingNumber" 
+          formControlName="trackingNumber"
+          placeholder="e.g., 1Z999AA10123456784"
+          class="form-control"
+        />
+        <small class="form-hint">
+          Enter the carrier's tracking number
+        </small>
+        <div *ngIf="shipForm.get('trackingNumber')?.invalid && shipForm.get('trackingNumber')?.touched" 
+             class="error-message">
+          Tracking number is required (minimum 5 characters)
+        </div>
+      </div>
+
+      <!-- Carrier -->
+      <div class="form-group">
+        <label for="carrier">Carrier *</label>
+        <select id="carrier" formControlName="carrier" class="form-control">
+          <option value="">-- Select Carrier --</option>
+          <option value="UPS">UPS</option>
+          <option value="FedEx">FedEx</option>
+          <option value="DHL">DHL</option>
+          <option value="USPS">USPS</option>
+          <option value="Other">Other</option>
+        </select>
+        <small class="form-hint">
+          Select the shipping carrier
+        </small>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="loading || shipForm.invalid || loadingShipments"
+        >
+          <span *ngIf="loading">Marking as Shipped...</span>
+          <span *ngIf="!loading">🚀 Ship Shipment</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          routerLink="/client/shipments"
+          [disabled]="loading"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

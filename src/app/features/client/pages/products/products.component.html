@@ -1,0 +1,126 @@
+<div class="products-container">
+  <div class="page-header">
+    <h1>Products Catalog</h1>
+    <p>Browse available products</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error$ | async as error" class="alert alert-error">
+    <span>{{ error }}</span>
+    <button class="btn-close" (click)="clearError()">×</button>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filters-card">
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Search</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by name, SKU, or description..."
+          [(ngModel)]="searchText"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select class="form-control" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Food">Food</option>
+          <option value="Books">Books</option>
+          <option value="Furniture">Furniture</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="showActiveOnly"
+              (change)="onFilterChange()"
+            />
+            <span>Active products only</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" (click)="onSearch()">
+          Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!(loading$ | async)" class="products-grid">
+    <ng-container *ngIf="(products$ | async) as products">
+      <div *ngIf="products.length === 0" class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>No products found</h3>
+        <p>Try adjusting your search or filters</p>
+      </div>
+
+      <div
+        *ngFor="let product of products; trackBy: trackByProductId"
+        class="product-card"
+      >
+        <div class="product-header">
+          <h3>{{ product.name }}</h3>
+          <span
+            class="status-badge"
+            [class.status-active]="product.active"
+            [class.status-inactive]="!product.active"
+          >
+            {{ product.active ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <div class="product-details">
+          <div class="detail-row">
+            <span class="label">SKU:</span>
+            <span class="value">{{ product.sku }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="product.category">
+            <span class="label">Category:</span>
+            <span class="value">{{ product.category }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="product.description">
+            <span class="label">Description:</span>
+            <span class="value">{{ product.description }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Selling Price:</span>
+            <span class="value price">{{ product.sellingPrice | currency }}</span>
+          </div>
+
+          <div class="detail-row">
+            <span class="label">Cost Price:</span>
+            <span class="value">{{ product.costPrice | currency }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="product.profit !== undefined">
+            <span class="label">Profit:</span>
+            <span class="value" [class.profit-positive]="product.profit > 0">{{ product.profit | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

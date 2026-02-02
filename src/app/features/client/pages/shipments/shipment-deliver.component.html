@@ -1,0 +1,111 @@
+<div class="shipment-deliver-container">
+  <div class="page-header">
+    <h1>✅ Mark Shipment as Delivered</h1>
+    <p>Confirm that a shipped order has been successfully delivered</p>
+  </div>
+
+  <div class="back-link">
+    <a routerLink="/client/shipments">← Back to Shipments</a>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="deliverForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        ✅ {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-error">
+        ❌ {{ error }}
+      </div>
+
+      <!-- Shipment Selection -->
+      <div class="form-group">
+        <label for="shipmentId">Shipment *</label>
+        <select 
+          id="shipmentId" 
+          formControlName="shipmentId"
+          (change)="onShipmentSelect()"
+          [disabled]="loadingShipments"
+          class="form-control"
+        >
+          <option value="">-- Select a Shipped Shipment --</option>
+          <option *ngFor="let shipment of shipments" [value]="shipment.id">
+            {{ getShipmentDisplay(shipment) }}
+          </option>
+        </select>
+        <small class="form-hint">
+          Select a shipped shipment to mark as delivered
+        </small>
+        <div *ngIf="shipments.length === 0 && !loadingShipments" class="warning-message">
+          ⚠️ No shipped shipments available.
+        </div>
+      </div>
+
+      <!-- Selected Shipment Info -->
+      <div *ngIf="selectedShipment" class="shipment-info">
+        <h3>📦 Shipment Details</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Shipment Number:</strong>
+            <span>{{ selectedShipment.shipmentNumber }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Sales Order:</strong>
+            <span>#{{ selectedShipment.salesOrderNumber || selectedShipment.salesOrderId }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Status:</strong>
+            <span class="badge badge-shipped">{{ selectedShipment.status }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedShipment.trackingNumber">
+            <strong>Tracking Number:</strong>
+            <span>{{ selectedShipment.trackingNumber }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedShipment.carrier">
+            <strong>Carrier:</strong>
+            <span>{{ selectedShipment.carrier }}</span>
+          </div>
+          <div class="info-item" *ngIf="selectedShipment.actualShipDate">
+            <strong>Ship Date:</strong>
+            <span>{{ selectedShipment.actualShipDate | date:'short' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Message -->
+      <div *ngIf="selectedShipment" class="confirmation-message">
+        <div class="icon">⚠️</div>
+        <div class="message">
+          <strong>Confirm Delivery</strong>
+          <p>
+            Are you sure this shipment has been successfully delivered to the customer? 
+            This action will update the shipment status to DELIVERED.
+          </p>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="loading || deliverForm.invalid || loadingShipments"
+        >
+          <span *ngIf="loading">Marking as Delivered...</span>
+          <span *ngIf="!loading">✅ Confirm Delivery</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          routerLink="/client/shipments"
+          [disabled]="loading"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

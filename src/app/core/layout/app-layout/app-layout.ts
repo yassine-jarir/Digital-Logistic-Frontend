@@ -1,81 +1,125 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { UserRole } from '../../models/user.model';
+
+interface MenuSection {
+  title: string;
+  icon: string;
+  expanded: boolean;
+  items: MenuItem[];
+  roles: UserRole[];
+}
+
+interface MenuItem {
+  label: string;
+  route: string;
+  icon?: string;
+}
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
-  template: `
-    <div style="display: flex; height: 100vh;">
-      <nav style="width: 250px; background: #2c3e50; color: white; padding: 1rem;">
-        <h3 style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #34495e;">
-          Menu Navigation
-        </h3>
-        <ul style="list-style: none; padding: 0;">
-          <li *ngIf="authService.hasRole('CLIENT')" style="margin-bottom: 0.5rem;">
-            <a 
-              routerLink="/client" 
-              routerLinkActive="active"
-              style="display: block; padding: 0.75rem; color: white; text-decoration: none; border-radius: 4px; transition: background 0.3s;"
-            >
-              📊 Dashboard Client
-            </a>
-          </li>
-          <li *ngIf="authService.hasRole('WAREHOUSE_MANAGER')" style="margin-bottom: 0.5rem;">
-            <a 
-              routerLink="/warehouse" 
-              routerLinkActive="active"
-              style="display: block; padding: 0.75rem; color: white; text-decoration: none; border-radius: 4px; transition: background 0.3s;"
-            >
-              📦 Dashboard Entrepôt
-            </a>
-          </li>
-          <li *ngIf="authService.hasRole('ADMIN')" style="margin-bottom: 0.5rem;">
-            <a 
-              routerLink="/admin" 
-              routerLinkActive="active"
-              style="display: block; padding: 0.75rem; color: white; text-decoration: none; border-radius: 4px; transition: background 0.3s;"
-            >
-              ⚙️ Dashboard Admin
-            </a>
-          </li>
-          <li style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #34495e;">
-            <button 
-              (click)="onLogout()"
-              style="width: 100%; padding: 0.75rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background 0.3s;"
-            >
-              🚪 Déconnexion
-            </button>
-          </li>
-        </ul>
-      </nav>
-      <main style="flex: 1; padding: 2rem; background: #ecf0f1; overflow-y: auto;">
-        <router-outlet></router-outlet>
-      </main>
-    </div>
-  `,
-  styles: [`
-    a.active {
-      background: #34495e !important;
-      font-weight: 600;
-    }
-    
-    a:hover {
-      background: #34495e !important;
-    }
-    
-    button:hover {
-      background: #c0392b !important;
-    }
-  `]
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FormsModule],
+  templateUrl: './app-layout.html',
+  styleUrls: ['./app-layout.css']
 })
 export class AppLayout {
+  menuSections: MenuSection[] = [
+    {
+      title: 'Dashboard',
+      icon: '📊',
+      expanded: true,
+      roles: ['CLIENT'],
+      items: [
+        { label: 'Overview', route: '/client', icon: '🏠' }
+      ]
+    },
+    {
+      title: 'Purchase Orders',
+      icon: '➕',
+      expanded: false,
+      roles: ['CLIENT'],
+      items: [
+        { label: 'Create Purchase Order', route: '/client/purchase-orders/create', icon: '➕' },
+        { label: 'Manage Purchase Orders', route: '/client/purchase-orders', icon: '📋' }
+      ]
+    },
+    {
+      title: 'Sales Orders',
+      icon: '📦',
+      expanded: false,
+      roles: ['CLIENT'],
+      items: [
+        { label: 'View Sales Orders', route: '/client/orders', icon: '📝' },
+        { label: 'Create Sales Order', route: '/client/orders/create', icon: '➕' }
+      ]
+    },
+    {
+      title: 'Shipments',
+      icon: '🚚',
+      expanded: false,
+      roles: ['CLIENT'],
+      items: [
+        { label: 'All Shipments', route: '/client/shipments', icon: '📦' },
+        { label: 'Create Shipment', route: '/client/shipments/create', icon: '➕' },
+        { label: 'Ship Order', route: '/client/shipments/ship', icon: '🚀' },
+        { label: 'Mark Delivered', route: '/client/shipments/deliver', icon: '✅' }
+      ]
+    },
+    {
+      title: 'Warehouses',
+      icon: '🏭',
+      expanded: false,
+      roles: ['CLIENT'],
+      items: [
+        { label: 'Manage Warehouses', route: '/client/warehouses', icon: '🏢' }
+      ]
+    },
+    {
+      title: 'Warehouse Manager',
+      icon: '📦',
+      expanded: false,
+      roles: ['WAREHOUSE_MANAGER'],
+      items: [
+        { label: 'Dashboard', route: '/warehouse', icon: '🏠' },
+        { label: 'Shipments', route: '/warehouse/shipments', icon: '🚚' }
+      ]
+    },
+    {
+      title: 'Admin',
+      icon: '⚙️',
+      expanded: false,
+      roles: ['ADMIN'],
+      items: [
+        { label: 'Dashboard', route: '/admin', icon: '🏠' }
+      ]
+    }
+  ];
+
   constructor(
     public authService: AuthService,
     private router: Router
   ) {}
+
+  toggleSection(section: MenuSection): void {
+    section.expanded = !section.expanded;
+  }
+
+  hasRole(roles: UserRole[]): boolean {
+    return roles.some(role => this.authService.hasRole(role));
+  }
+
+  // Sidebar Shipments filter
+  selectedShipmentStatus: string = 'ALL';
+
+  onShipmentStatusChange(status: string): void {
+    this.selectedShipmentStatus = status;
+    const queryParams = status === 'ALL' ? {} : { status };
+    this.router.navigate(['/client/shipments'], { queryParams });
+  }
 
   onLogout(): void {
     this.authService.logout();

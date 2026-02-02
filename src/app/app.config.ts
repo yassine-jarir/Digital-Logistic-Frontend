@@ -8,6 +8,10 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { mockBackendInterceptor } from './core/interceptors/mock-backend.interceptor';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { productsReducer } from './features/client/pages/products/store/products.reducer';
+import { ProductsEffects } from './features/client/pages/products/store/products.effects';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -24,6 +28,8 @@ export const appConfig: ApplicationConfig = {
         loadingInterceptor,
       ])
     ),
-    { provide: API_BASE_URL, useValue: 'http://localhost:9090/api' }
+    { provide: API_BASE_URL, useValue: 'http://localhost:9090/api' },
+    provideStore({ clientProducts: productsReducer }),
+    provideEffects([ProductsEffects])
   ]
 };

@@ -1,0 +1,67 @@
+<div class="shipment-create-container">
+  <div class="page-header">
+    <h1>🚚 Create New Shipment</h1>
+    <p>Create a shipment for a reserved sales order</p>
+  </div>
+
+  <div class="back-link">
+    <a routerLink="/client/shipments">← Back to Shipments</a>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        ✅ {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-error">
+        ❌ {{ error }}
+      </div>
+
+      <!-- Sales Order Selection -->
+      <div class="form-group">
+        <label for="salesOrderId">Sales Order *</label>
+        <select 
+          id="salesOrderId" 
+          formControlName="salesOrderId"
+          [disabled]="loadingOrders"
+          class="form-control"
+        >
+          <option value="">-- Select a Sales Order --</option>
+          <option *ngFor="let order of salesOrders" [value]="order.id">
+            {{ getOrderDisplay(order) }}
+          </option>
+        </select>
+        <small class="form-hint">
+          Select a reserved sales order to create a shipment
+        </small>
+        <div *ngIf="salesOrders.length === 0 && !loadingOrders" class="warning-message">
+          ⚠️ No reserved orders available. Please reserve an order first.
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="loading || createForm.invalid || loadingOrders"
+        >
+          <span *ngIf="loading">Creating Shipment...</span>
+          <span *ngIf="!loading">➕ Create Shipment</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          routerLink="/client/shipments"
+          [disabled]="loading"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

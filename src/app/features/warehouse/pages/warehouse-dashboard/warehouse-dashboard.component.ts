@@ -6,11 +6,13 @@ import { PurchaseOrderService } from '../../../../api/purchase-order.service';
 import { WarehousePurchaseOrderService } from '../../services/warehouse-purchase-order.service';
 import { InventoryService } from '../../../../api/inventory.service';
 import { WarehouseService } from '../../../../api/warehouse.service';
+import { ShipmentService } from '../../../../api/shipment.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SalesOrder } from '../../../../core/models/sales-order.model';
 import { PurchaseOrder } from '../../../../core/models/purchase-order.model';
 import { Inventory } from '../../../../core/models/inventory.model';
 import { Warehouse } from '../../../../core/models/warehouse.model';
+import { Shipment } from '../../../../core/models/shipment.model';
 import { forkJoin } from 'rxjs';
 
 interface DashboardStats {
@@ -21,8 +23,13 @@ interface DashboardStats {
   receivedPO: number;
   totalWarehouses: number;
   lowStockItems: number;
+  totalShipments: number;
+  plannedShipments: number;
+  shippedShipments: number;
+  deliveredShipments: number;
   recentSalesOrders: SalesOrder[];
   recentPurchaseOrders: PurchaseOrder[];
+  recentShipments: Shipment[];
   salesByStatus: { status: string; count: number; color: string }[];
   purchaseByStatus: { status: string; count: number; color: string }[];
 }
@@ -35,26 +42,24 @@ interface DashboardStats {
   styleUrl: './warehouse-dashboard.component.css'
 })
 export class WarehouseDashboardPageComponent implements OnInit {
-  // Signals for reactive data
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   receiving = signal<number | null>(null);
   successMessage = signal<string | null>(null);
   
-  // Data signals
   salesOrders = signal<SalesOrder[]>([]);
   purchaseOrders = signal<PurchaseOrder[]>([]);
   inventory = signal<Inventory[]>([]);
   warehouses = signal<Warehouse[]>([]);
+  shipments = signal<Shipment[]>([]);
   
-  // User info
   username = signal<string>('');
   
-  // Computed dashboard statistics
   stats = computed<DashboardStats>(() => {
     const sales = this.salesOrders();
     const purchases = this.purchaseOrders();
     const inv = this.inventory();
+    const ships = this.shipments();
     
     return {
       totalSalesOrders: sales.length,
@@ -64,8 +69,13 @@ export class WarehouseDashboardPageComponent implements OnInit {
       receivedPO: purchases.filter(p => p.status === 'RECEIVED').length,
       totalWarehouses: this.warehouses().length,
       lowStockItems: inv.filter(i => i.qtyOnHand < (i.reorderPoint || 10)).length,
+      totalShipments: ships.length,
+      plannedShipments: ships.filter(s => s.status === 'PLANNED').length,
+      shippedShipments: ships.filter(s => s.status === 'SHIPPED').length,
+      deliveredShipments: ships.filter(s => s.status === 'DELIVERED').length,
       recentSalesOrders: sales.slice(0, 5),
       recentPurchaseOrders: purchases.slice(0, 5),
+      recentShipments: ships.slice(0, 5),
       salesByStatus: this.calculateStatusBreakdown(sales),
       purchaseByStatus: this.calculatePurchaseStatusBreakdown(purchases)
     };
@@ -77,6 +87,7 @@ export class WarehouseDashboardPageComponent implements OnInit {
     private warehousePurchaseOrderService: WarehousePurchaseOrderService,
     private inventoryService: InventoryService,
     private warehouseService: WarehouseService,
+    private shipmentService: ShipmentService,
     private authService: AuthService
   ) {
     this.username.set(this.authService.currentUser?.username || 'Warehouse Manager');
@@ -87,10 +98,9 @@ export class WarehouseDashboardPageComponent implements OnInit {
   }
 
   loadDashboardData(): void {
-    this.loading.set(true);
+    this.loading.set(true); 
     this.error.set(null);
 
-    // Load all data in parallel using forkJoin
     forkJoin({
       salesOrders: this.salesOrderService.getWarehouseSalesOrders(),
       purchaseOrders: this.purchaseOrderService.getAdminPurchaseOrders(),
@@ -103,12 +113,28 @@ export class WarehouseDashboardPageComponent implements OnInit {
         this.purchaseOrders.set(data.purchaseOrders);
         this.inventory.set(data.inventory);
         this.warehouses.set(data.warehouses);
+        
+        this.loadShipments();
+        
         this.loading.set(false);
       },
       error: (error) => {
         console.error('❌ Error loading dashboard data:', error);
         this.error.set('Failed to load dashboard data. Please try again.');
         this.loading.set(false);
+      }
+    });
+  }
+
+  private loadShipments(): void {
+    this.shipmentService.getClientShipments().subscribe({
+      next: (shipments) => {
+        console.log('✅ Shipments loaded:', shipments);
+        this.shipments.set(shipments);
+      },
+      error: (error) => {
+        console.warn('⚠️ Shipments not available:', error);
+        this.shipments.set([]);
       }
     });
   }

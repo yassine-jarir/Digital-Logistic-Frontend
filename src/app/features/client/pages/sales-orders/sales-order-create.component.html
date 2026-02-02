@@ -19,25 +19,16 @@
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="clientId">Client ID <span class="required">*</span></label>
-      <input
-        type="number"
-        id="clientId"
-        name="clientId"
-        [(ngModel)]="clientId"
-        min="1"
-        required
-      />
-      <small class="hint">Temporary: required by backend. If unknown, ask admin for your numeric client ID.</small>
-    </div>
-    <div class="info-message" *ngIf="productsLoading">
+    <!-- Client ID is automatically populated from logged-in user -->
+    <input type="hidden" name="clientId" [(ngModel)]="clientId" />
+
+    <div class="info-message" *ngIf="productsLoading$ | async">
       Loading products...
     </div>
 
-    <div class="error-message" *ngIf="productsError">
+    <div class="error-message" *ngIf="productsError$ | async as productsError">
       {{ productsError }}
-      <button type="button" class="btn btn-secondary btn-sm" (click)="loadProducts()" [disabled]="productsLoading">
+      <button type="button" class="btn btn-secondary btn-sm" (click)="loadProducts()" [disabled]="productsLoading$ | async">
         Retry
       </button>
     </div>
@@ -68,11 +59,11 @@
             name="productId-{{ i }}"
             [(ngModel)]="item.productId"
             (ngModelChange)="onProductSelected(item)"
-            [disabled]="loading || productsLoading"
+            [disabled]="loading || !!(productsLoading$ | async)"
             required
           >
             <option [ngValue]="0" disabled>Select a product</option>
-            <option *ngFor="let p of products" [ngValue]="p.id">
+            <option *ngFor="let p of (products$ | async)" [ngValue]="p.id">
               {{ formatProductOption(p) }}
             </option>
           </select>
